@@ -39,26 +39,33 @@ defmodule XettelkastenServer.Note do
     |> Path.rootname(".md")
     |> String.replace(XettelkastenServer.notes_directory(), "")
     |> String.trim_leading("/")
+    |> String.replace("/", ".")
   end
 
   defp slug_to_path(slug) do
     Path.join(
       XettelkastenServer.notes_directory(),
-      slug <> ".md"
+      String.replace(slug, ".", "/") <> ".md"
     )
   end
 
   defp path_to_title(path) do
     path
     |> path_to_slug()
-    |> String.split("_")
-    |> Enum.map(&String.capitalize/1)
-    |> Enum.join(" ")
+    |> String.split(".")
+    |> Enum.map(fn level ->
+      level
+      |> String.split("_")
+      |> Enum.map(&String.capitalize/1)
+      |> Enum.join(" ")
+    end)
+    |> Enum.join("/")
   end
 
   defp title_to_slug(title) do
     title
     |> String.downcase()
     |> String.replace(" ", "_")
+    |> String.replace("/", ".")
   end
 end

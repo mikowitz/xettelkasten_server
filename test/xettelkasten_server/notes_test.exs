@@ -7,6 +7,7 @@ defmodule XettelkastenServer.NotesTest do
   test "all" do
     assert Notes.all() == [
              Note.from_slug("backlinks"),
+             Note.from_slug("nested.bird"),
              Note.from_slug("simple"),
              Note.from_slug("simple_backlink")
            ]
