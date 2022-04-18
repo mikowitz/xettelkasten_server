@@ -13,6 +13,12 @@ defmodule XettelkastenServer.Note do
     new(path, slug, title)
   end
 
+  def from_title(title) do
+    slug = title_to_slug(title)
+    path = slug_to_path(slug)
+    new(path, slug, title)
+  end
+
   def new(path, slug, title) do
     %__MODULE__{
       path: path,
@@ -22,9 +28,9 @@ defmodule XettelkastenServer.Note do
   end
 
   def read(%__MODULE__{path: path}) do
-    with {:ok, markdown} <- File.read(path) do
-      {:ok, html, _} = Earmark.as_html(markdown)
-      html
+    with {:ok, markdown} <- File.read(path),
+         {:ok, ast} <- XettelkastenServer.MarkdownParser.parse(markdown) do
+      Earmark.Transform.transform(ast)
     end
   end
 
@@ -48,5 +54,11 @@ defmodule XettelkastenServer.Note do
     |> String.split("_")
     |> Enum.map(&String.capitalize/1)
     |> Enum.join(" ")
+  end
+
+  defp title_to_slug(title) do
+    title
+    |> String.downcase()
+    |> String.replace(" ", "_")
   end
 end

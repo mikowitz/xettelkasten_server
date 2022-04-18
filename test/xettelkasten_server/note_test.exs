@@ -21,6 +21,14 @@ defmodule XettelkastenServer.NoteTest do
            }
   end
 
+  test "from title" do
+    assert Note.from_title("GREAT Note") == %Note{
+             path: note_path("great_note.md"),
+             slug: "great_note",
+             title: "GREAT Note"
+           }
+  end
+
   describe "read" do
     test "returns Earkmark tuple for an existing note" do
       note =
@@ -30,7 +38,29 @@ defmodule XettelkastenServer.NoteTest do
 
       html = Note.read(note)
 
-      assert html =~ ~r"<h1>\nA simple note</h1>"
+      {:ok, doc} = Floki.parse_document(html)
+
+      [{"h1", _, [header]}] = Floki.find(doc, "h1")
+      assert String.trim(header) == "A simple note"
+    end
+
+    test "correctly parses markdown with backlinks" do
+      note =
+        "simple_backlink.md"
+        |> note_path()
+        |> Note.from_path()
+
+      html = Note.read(note)
+
+      {:ok, doc} = Floki.parse_document(html)
+
+      [{"h1", _, [header]}] = Floki.find(doc, "h1")
+      assert String.trim(header) == "Simple backlink"
+
+      [{"a", attrs, [text]}] = Floki.find(doc, "a")
+
+      assert attrs == [{"href", "/very_simple"}]
+      assert String.trim(text) == "very simple"
     end
 
     test "returns posix error for a missing note" do
