@@ -6,11 +6,9 @@ defmodule XettelkastenServer.NotesTest do
 
   test "all" do
     assert Notes.all() == [
-             %Note{
-               path: "test/support/notes/simple.md",
-               slug: "simple",
-               title: "Simple"
-             }
+             Note.from_slug("backlinks"),
+             Note.from_slug("simple"),
+             Note.from_slug("simple_backlink")
            ]
   end
 

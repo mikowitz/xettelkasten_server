@@ -5,7 +5,7 @@ defmodule XettelkastenServer.MixProject do
     [
       app: :xettelkasten_server,
       version: "0.1.0",
-      elixir: "~> 1.13",
+      elixir: "~> 1.10",
       start_permanent: Mix.env() == :prod,
       deps: deps()
     ]
@@ -23,6 +23,7 @@ defmodule XettelkastenServer.MixProject do
   defp deps do
     [
       {:earmark, "~> 1.4.24"},
+      {:floki, "~> 0.32.0", only: [:dev, :test]},
       {:plug_cowboy, "~> 2.0"},
       {:mix_test_watch, "~> 1.0", only: [:dev, :test], runtime: false}
     ]
