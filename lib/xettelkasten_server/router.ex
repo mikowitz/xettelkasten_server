@@ -3,13 +3,14 @@ defmodule XettelkastenServer.Router do
 
   alias XettelkastenServer.{Note, Notes}
 
+  @templates_dir "lib/xettelkasten_server/templates"
+
   plug(:match)
   plug(:dispatch)
 
   get "/" do
     notes = Notes.all()
-    page = EEx.eval_file("lib/xettelkasten_server/templates/notes.html.eex", notes: notes)
-    send_resp(conn, 200, page)
+    render(conn, "notes", notes: notes)
   end
 
   match "/:slug" do
@@ -18,20 +19,24 @@ defmodule XettelkastenServer.Router do
         {:ok, f} = File.read(path)
         {:ok, rendered_markdown, _} = Earmark.as_html(f)
 
-        page =
-          EEx.eval_file("lib/xettelkasten_server/templates/note.html.eex",
-            rendered_markdown: rendered_markdown
-          )
-
-        send_resp(conn, 200, page)
+        render(conn, "note", rendered_markdown: rendered_markdown)
 
       nil ->
-        path = Path.join(XettelkastenServer.notes_directory(), slug <> ".md")
+        expected_path = Path.join(XettelkastenServer.notes_directory(), slug <> ".md")
 
-        page =
-          EEx.eval_file("lib/xettelkasten_server/templates/404.html.eex", expected_path: path)
-
-        send_resp(conn, 404, page)
+        conn
+        |> put_status(404)
+        |> render("404", expected_path: expected_path)
     end
+  end
+
+  defp render(%{status: status} = conn, template, assigns) do
+    body =
+      @templates_dir
+      |> Path.join(template)
+      |> Kernel.<>(".html.eex")
+      |> EEx.eval_file(assigns)
+
+    send_resp(conn, status || 200, body)
   end
 end
