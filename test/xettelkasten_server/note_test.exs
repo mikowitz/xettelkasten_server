@@ -7,10 +7,10 @@ defmodule XettelkastenServer.NoteTest do
     path = note_path("simple.md")
 
     assert Note.from_path(path) == %Note{
-      path: path,
-      slug: "simple",
-      title: "Simple",
-    }
+             path: path,
+             slug: "simple",
+             title: "Simple"
+           }
   end
 
   defp note_path(filename) do

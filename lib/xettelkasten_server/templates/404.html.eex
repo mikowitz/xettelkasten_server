@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Xettelkasten</title>
+  </head>
+  <body>
+    <a href="/">Index</a>
+    <hr/>
+    <p>
+      Could not find a markdown file at <%= expected_path %>
+    </p>
+    <p>
+      Create a file at that location to resolve this link.
+    </p>
+  </body>
+</html>
+
+

@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Xettelkasten</title>
+  </head>
+  <body>
+    <a href="/">Index</a>
+    <hr/>
+    <ul>
+      <%= for note <- notes do %>
+        <li>
+          <a href="/<%= note.slug %>"><%= note.title %></a>
+        </li>
+      <% end %>
+    </ul>
+  </body>
+</html>

@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Xettelkasten</title>
+  </head>
+  <body>
+    <a href="/">Index</a>
+    <hr/>
+    <%= rendered_markdown %>
+  </body>
+</html>
+
