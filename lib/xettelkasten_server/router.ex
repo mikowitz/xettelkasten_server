@@ -15,14 +15,12 @@ defmodule XettelkastenServer.Router do
 
   match "/:slug" do
     case Notes.get(slug) do
-      %Note{path: path} ->
-        {:ok, f} = File.read(path)
-        {:ok, rendered_markdown, _} = Earmark.as_html(f)
-
+      %Note{} = note ->
+        rendered_markdown = Note.read(note)
         render(conn, "note", rendered_markdown: rendered_markdown)
 
       nil ->
-        expected_path = Path.join(XettelkastenServer.notes_directory(), slug <> ".md")
+        %Note{path: expected_path} = Note.from_slug(slug)
 
         conn
         |> put_status(404)
