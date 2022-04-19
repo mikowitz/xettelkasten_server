@@ -62,7 +62,7 @@ defmodule XettelkastenServer.NoteTest do
   end
 
   describe "read" do
-    test "returns Earkmark tuple for an existing note" do
+    test "returns Earmark tuple for an existing note" do
       note =
         "simple.md"
         |> note_path()
@@ -93,6 +93,26 @@ defmodule XettelkastenServer.NoteTest do
 
       assert attrs == [{"href", "/very_simple"}]
       assert String.trim(text) == "very simple"
+    end
+
+    test "correctly parses markdown with tags" do
+      note =
+        "tag.md"
+        |> note_path()
+        |> Note.from_path()
+
+      html = Note.read(note)
+
+      {:ok, doc} = Floki.parse_document(html)
+
+      [{"h1", _, [header]}] = Floki.find(doc, "h1")
+      assert String.trim(header) == "Tag"
+
+      [{"a", attrs, [text]}] = Floki.find(doc, "a.tag")
+
+      assert String.trim(text) == "#tag"
+      assert {"href", "/?tag=tag"} in attrs
+      assert {"class", "tag"} in attrs
     end
 
     test "returns posix error for a missing note" do

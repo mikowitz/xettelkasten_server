@@ -7,6 +7,10 @@ a {
   color: #def;
 }
 
+a.tag {
+  color: #dfe;
+}
+
 span.backlink {
   color: #e00;
 }
@@ -27,6 +31,7 @@ span.backlink a:hover {
 .nav {
   margin: auto;
   width: 67%;
+  margin-top: 20px;
   margin-bottom: 20px;
 }
 

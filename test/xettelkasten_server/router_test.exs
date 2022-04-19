@@ -22,6 +22,24 @@ defmodule XettelkastenServer.RouterTest do
     assert {"a", [{"href", "/backlinks"}], ["Backlinks"]} in links
   end
 
+  test "'/?tag=' shows a list of notes that share the tag" do
+    conn =
+      :get
+      |> conn("/", %{tag: "tag"})
+      |> Router.call(@opts)
+
+    assert conn.status == 200
+    {:ok, doc} = Floki.parse_document(conn.resp_body)
+
+    links = Floki.find(doc, "li a")
+
+    assert conn.resp_body =~ ~r"Notes tagged with <b>#tag</b>"
+
+    assert {"a", [{"href", "/tag"}], ["Tag"]} in links
+    refute {"a", [{"href", "/simple"}], ["Simple"]} in links
+    refute {"a", [{"href", "/backlinks"}], ["Backlinks"]} in links
+  end
+
   describe "'/:slug'" do
     test "renders a link to the index" do
       conn =
@@ -36,6 +54,19 @@ defmodule XettelkastenServer.RouterTest do
       assert index_link == [{"a", [{"href", "/"}], ["← Index"]}]
     end
 
+    test "renders a tag as a link" do
+      conn =
+        :get
+        |> conn("/tag", "")
+        |> Router.call(@opts)
+
+      assert conn.status == 200
+      {:ok, doc} = Floki.parse_document(conn.resp_body)
+
+      tag_links = Floki.find(doc, "a.tag")
+      assert {"a", [{"href", "/?tag=tag"}, {"class", "tag"}], ["#tag"]} in tag_links
+    end
+
     test "renders the content of the linked file" do
       conn =
         :get
@@ -45,7 +76,7 @@ defmodule XettelkastenServer.RouterTest do
       {:ok, doc} = Floki.parse_document(conn.resp_body)
 
       [{"h1", _, [header]}] = Floki.find(doc, "h1")
-      [{"p", _, [paragraph_text]}] = Floki.find(doc, "p")
+      [{"p", _, [paragraph_text]} | _] = Floki.find(doc, "p")
 
       assert String.trim(header) == "A simple note"
       assert String.trim(paragraph_text) == "Hello there!"

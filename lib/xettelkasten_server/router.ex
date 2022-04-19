@@ -17,8 +17,17 @@ defmodule XettelkastenServer.Router do
   plug(:dispatch)
 
   get "/" do
-    notes = Notes.all()
-    render(conn, "notes", notes: notes)
+    conn = fetch_query_params(conn)
+
+    tag = conn.params["tag"]
+
+    notes =
+      case tag do
+        nil -> Notes.all()
+        tag when is_bitstring(tag) -> Notes.all(tag: tag)
+      end
+
+    render(conn, "notes", notes: notes, tag: tag)
   end
 
   match "/:slug" do
