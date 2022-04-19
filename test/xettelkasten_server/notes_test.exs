@@ -4,13 +4,22 @@ defmodule XettelkastenServer.NotesTest do
   alias XettelkastenServer.Notes
   alias XettelkastenServer.Note
 
-  test "all" do
-    assert Notes.all() == [
-             Note.from_slug("backlinks"),
-             Note.from_slug("nested.bird"),
-             Note.from_slug("simple"),
-             Note.from_slug("simple_backlink")
-           ]
+  describe "all" do
+    test "untagged" do
+      assert Notes.all() == [
+               Note.from_slug("backlinks"),
+               Note.from_slug("nested.bird"),
+               Note.from_slug("simple"),
+               Note.from_slug("simple_backlink"),
+               Note.from_slug("tag")
+             ]
+    end
+
+    test "tagged" do
+      assert Notes.all(tag: "tag") == [
+               Note.from_slug("tag")
+             ]
+    end
   end
 
   describe "get" do
