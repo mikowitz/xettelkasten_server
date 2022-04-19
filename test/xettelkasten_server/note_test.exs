@@ -3,30 +3,62 @@ defmodule XettelkastenServer.NoteTest do
 
   alias XettelkastenServer.Note
 
-  test "from_path" do
-    path = note_path("simple.md")
+  describe "from_path" do
+    test "unnested" do
+      path = note_path("simple.md")
 
-    assert Note.from_path(path) == %Note{
-             path: path,
-             slug: "simple",
-             title: "Simple"
-           }
+      assert Note.from_path(path) == %Note{
+               path: path,
+               slug: "simple",
+               title: "Simple"
+             }
+    end
+
+    test "nested" do
+      path = note_path("nested/simple.md")
+
+      assert Note.from_path(path) == %Note{
+               path: path,
+               slug: "nested.simple",
+               title: "Nested/Simple"
+             }
+    end
   end
 
-  test "from slug" do
-    assert Note.from_slug("basic_note") == %Note{
-             path: note_path("basic_note.md"),
-             slug: "basic_note",
-             title: "Basic Note"
-           }
+  describe "from slug" do
+    test "unnested" do
+      assert Note.from_slug("basic_note") == %Note{
+               path: note_path("basic_note.md"),
+               slug: "basic_note",
+               title: "Basic Note"
+             }
+    end
+
+    test "nested" do
+      assert Note.from_slug("deeply.nested.basic_note") == %Note{
+               path: note_path("deeply/nested/basic_note.md"),
+               slug: "deeply.nested.basic_note",
+               title: "Deeply/Nested/Basic Note"
+             }
+    end
   end
 
-  test "from title" do
-    assert Note.from_title("GREAT Note") == %Note{
-             path: note_path("great_note.md"),
-             slug: "great_note",
-             title: "GREAT Note"
-           }
+  describe "from title" do
+    test "unnested" do
+      assert Note.from_title("GREAT Note") == %Note{
+               path: note_path("great_note.md"),
+               slug: "great_note",
+               title: "GREAT Note"
+             }
+    end
+
+    test "nested" do
+      assert Note.from_title("GREAT/Note") == %Note{
+               path: note_path("great/note.md"),
+               slug: "great.note",
+               title: "GREAT/Note"
+             }
+    end
   end
 
   describe "read" do

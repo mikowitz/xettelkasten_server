@@ -66,10 +66,29 @@ defmodule XettelkastenServer.RouterTest do
       assert {"a", [{"href", "/toplevel"}], ["toplevel"]} in backlinks
       assert {"a", [{"href", "/nested"}], ["nested"]} in backlinks
       assert {"a", [{"href", "/first"}], ["first"]} in backlinks
-      assert {"a", [{"href", "/text_block"}], ["text block"]} in backlinks
+      assert {"a", [{"href", "/nested.text_block"}], ["nested/text block"]} in backlinks
     end
 
-    test "renders a 404 page if the slug doesn't map to a existing file" do
+    test "renders a nested note" do
+      conn =
+        :get
+        |> conn("/nested.bird", "")
+        |> Router.call(@opts)
+
+      assert conn.status == 200
+
+      {:ok, doc} = Floki.parse_document(conn.resp_body)
+
+      [{"h1", _, [header]}] = Floki.find(doc, "h1")
+      [{"p", _, [text]}] = Floki.find(doc, "p")
+
+      assert String.trim(header) == "I'm a bird"
+      assert String.trim(text) == "Just a pretty little tweety bird"
+    end
+  end
+
+  describe "/:slug with an invalid slug" do
+    test "renders a 404 page if the unnested slug doesn't map to a existing file" do
       conn =
         :get
         |> conn("/not_a_page", "")
@@ -79,6 +98,18 @@ defmodule XettelkastenServer.RouterTest do
 
       assert conn.resp_body =~
                ~r"Could not find a markdown file at test/support/notes/not_a_page.md"
+    end
+
+    test "renders a 404 page if the nested slug doesn't map to a existing file" do
+      conn =
+        :get
+        |> conn("/really.not.a_page", "")
+        |> Router.call(@opts)
+
+      assert conn.status == 404
+
+      assert conn.resp_body =~
+               ~r"Could not find a markdown file at test/support/notes/really/not/a_page.md"
     end
   end
 end
