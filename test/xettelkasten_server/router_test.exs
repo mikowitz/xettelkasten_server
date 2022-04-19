@@ -33,7 +33,7 @@ defmodule XettelkastenServer.RouterTest do
       {:ok, doc} = Floki.parse_document(conn.resp_body)
 
       index_link = Floki.find(doc, "a")
-      assert index_link == [{"a", [{"href", "/"}], ["Index"]}]
+      assert index_link == [{"a", [{"href", "/"}], ["← Index"]}]
     end
 
     test "renders the content of the linked file" do
