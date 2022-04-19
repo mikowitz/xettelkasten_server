@@ -5,6 +5,14 @@ defmodule XettelkastenServer.Router do
 
   @templates_dir "lib/xettelkasten_server/templates"
 
+  plug(
+    Plug.Static,
+    at: "/",
+    from: "lib/xettelkasten_server/templates",
+    gzip: false,
+    only: ~w(styles.css)
+  )
+
   plug(:match)
   plug(:dispatch)
 
@@ -29,12 +37,17 @@ defmodule XettelkastenServer.Router do
   end
 
   defp render(%{status: status} = conn, template, assigns) do
-    body =
-      @templates_dir
-      |> Path.join(template)
-      |> Kernel.<>(".html.eex")
-      |> EEx.eval_file(assigns)
+    inner_content = render_template(template, assigns)
+
+    body = render_template("root", inner_content: inner_content, template: template)
 
     send_resp(conn, status || 200, body)
+  end
+
+  def render_template(template, assigns) do
+    @templates_dir
+    |> Path.join(template)
+    |> Kernel.<>(".html.eex")
+    |> EEx.eval_file(assigns)
   end
 end

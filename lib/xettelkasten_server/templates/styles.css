@@ -1,0 +1,37 @@
+body {
+  color: #eee;
+  background-color: #334;
+}
+
+a {
+  color: #def;
+}
+
+span.backlink {
+  color: #e00;
+}
+
+span.backlink a {
+  color: #e00;
+}
+
+span.backlink a:hover {
+  color: #eaa;
+}
+
+.container {
+  margin: auto;
+  width: 67%;
+}
+
+.nav {
+  margin: auto;
+  width: 67%;
+  margin-bottom: 20px;
+}
+
+hr {
+  margin: auto;
+  width: 84%;
+  margin-bottom: 20px;
+}

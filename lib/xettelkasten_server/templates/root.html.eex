@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Xettelkasten</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <div class="nav">
+      <a href="/"><%= if template != "notes", do: "← " %>Index</a>
+    </div>
+    <hr/>
+    <div class="container">
+      <%= inner_content %>
+    </div>
+  </body>
+</html>
