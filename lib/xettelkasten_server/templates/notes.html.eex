@@ -1,5 +1,7 @@
 <%= if tag do %>
-  <p>Notes tagged with <b>#<%= tag %></b></p>
+  <h3>
+    Notes tagged with <b>#<%= tag %></b>
+  </h3>
 <% end %>
 <ul>
   <%= for note <- notes do %>

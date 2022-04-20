@@ -8,9 +8,9 @@ defmodule XettelkastenServer.Router do
   plug(
     Plug.Static,
     at: "/",
-    from: "lib/xettelkasten_server/templates",
+    from: "priv/static",
     gzip: false,
-    only: ~w(styles.css)
+    only: ~w(prism.css prism.js styles.css)
   )
 
   plug(:match)
