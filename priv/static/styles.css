@@ -1,0 +1,91 @@
+:root {
+  --bg-color: hsl(220, 13%, 22%);
+  --fg-color: hsl(0, 0%, 80%);
+  --tag-link-color: hsl(140, 40%, 65%);
+  --backlink-link-color: hsl(0, 65%, 65%);
+  --backlink-hover-color: hsl(40, 90%, 65%);
+  --link-color: hsl(210, 100%, 90%);
+  --link-hover-color: hsl(210, 80%, 80%);
+}
+
+body {
+  background: var(--bg-color);
+  color: var(--fg-color);
+
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 50px;
+
+  padding: 32px;
+}
+
+main {
+  max-width: 1000px;
+  min-width: 500px;
+  border-left: 1px solid;
+  border-left-color: --var(fg-color);
+  padding-left: 35px;
+}
+
+nav {
+  flex-shrink: 1;
+  margin-right: -15px;
+}
+
+main > h1 {
+  margin-top: 0;
+}
+
+a {
+  color: var(--link-color);
+}
+
+a:hover {
+  color: var(--link-hover-color);
+}
+
+a.tag {
+  color: var(--tag-link-color);
+  text-decoration: none;
+}
+
+a.tag:hover {
+  color: var(--backlink-hover-color);
+}
+
+span.backlink {
+  color: var(--backlink-link-color);
+}
+
+span.backlink a {
+  color: var(--backlink-link-color);
+  text-decoration: none;
+}
+
+span.backlink a:hover {
+  color: var(--backlink-hover-color);
+}
+
+@media only screen and (max-width: 768px) {
+  body {
+    flex-direction: column;
+    gap: 0;
+
+    padding: 32px;
+  }
+
+  main {
+    margin: auto;
+    width: 96%;
+    flex-grow: 1;
+    border-top: 1px solid;
+    border-top-color: --var(fg-color);
+    padding-top: 10px;
+    border-left: 0;
+  }
+
+  nav {
+    border: 0;
+  }
+}

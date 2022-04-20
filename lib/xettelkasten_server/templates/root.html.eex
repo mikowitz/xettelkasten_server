@@ -3,15 +3,35 @@
   <head>
     <meta charset="UTF-8">
     <title>Xettelkasten</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/plugins/autoloader/prism-autoloader.min.js"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/themes/prism-tomorrow.min.css">
     <link rel="stylesheet" href="styles.css">
   </head>
   <body>
-    <div class="nav">
-      <a href="/"><%= if template != "notes", do: "← " %>Index</a>
-    </div>
-    <hr/>
-    <div class="container">
+    <nav>
+      <h3>
+        <a href="/"><%= if template != "notes", do: "← " %>Index</a>
+      </h3>
+        <%= if template == "note" do %>
+          <div class="nav-tags">
+            <h5><u>Tags</u></h5>
+          </div>
+
+          <h4>Backlinks</h4>
+
+          <div class="nav-backlinks">
+            <h5><u>Outgoing</u></h5>
+          </div>
+
+          <div class="nav-backlinks-incoming">
+            <h5><u>Incoming</u></h5>
+          </div>
+        <% end %>
+    </nav>
+    <main>
       <%= inner_content %>
-    </div>
+    </main>
   </body>
 </html>
