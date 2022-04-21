@@ -45,6 +45,10 @@ a:hover {
   color: var(--link-hover-color);
 }
 
+.tag {
+  color: var(--tag-link-color);
+}
+
 a.tag {
   color: var(--tag-link-color);
   text-decoration: none;

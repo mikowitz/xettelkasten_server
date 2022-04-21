@@ -10,65 +10,51 @@ defmodule XettelkastenServer.NoteTest do
       assert Note.from_path(path) == %Note{
                path: path,
                slug: "simple",
-               title: "Simple"
+               title: "Simple",
+               markdown: "# A simple note\n\nHello there!\n"
              }
     end
 
-    test "nested" do
+    test "when the file doesn't exist" do
       path = note_path("nested/simple.md")
+
+      assert Note.from_path(path) == nil
+    end
+
+    test "with header metadata" do
+      path = note_path("with_header.md")
 
       assert Note.from_path(path) == %Note{
                path: path,
-               slug: "nested.simple",
-               title: "Nested/Simple"
+               slug: "with_header",
+               title: "My Cool Note",
+               tags: ~w(#awesome #more_tags #prettycool #sweet #tags),
+               markdown:
+                 "\nThis is just the rest of the post with a [[backlink]]\n\nand some #tags #more_tags #awesome\n"
+             }
+    end
+
+    test "with header metadata and an h1 tag" do
+      path = note_path("with_header_and_h1.md")
+
+      assert Note.from_path(path) == %Note{
+               path: path,
+               slug: "with_header_and_h1",
+               title: "Hello",
+               tags: [],
+               markdown: "# Foo bar\n"
              }
     end
   end
 
-  describe "from slug" do
-    test "unnested" do
-      assert Note.from_slug("basic_note") == %Note{
-               path: note_path("basic_note.md"),
-               slug: "basic_note",
-               title: "Basic Note"
-             }
-    end
-
-    test "nested" do
-      assert Note.from_slug("deeply.nested.basic_note") == %Note{
-               path: note_path("deeply/nested/basic_note.md"),
-               slug: "deeply.nested.basic_note",
-               title: "Deeply/Nested/Basic Note"
-             }
-    end
-  end
-
-  describe "from title" do
-    test "unnested" do
-      assert Note.from_title("GREAT Note") == %Note{
-               path: note_path("great_note.md"),
-               slug: "great_note",
-               title: "GREAT Note"
-             }
-    end
-
-    test "nested" do
-      assert Note.from_title("GREAT/Note") == %Note{
-               path: note_path("great/note.md"),
-               slug: "great.note",
-               title: "GREAT/Note"
-             }
-    end
-  end
-
-  describe "read" do
+  describe "parse_markdown" do
     test "returns Earmark tuple for an existing note" do
       note =
         "simple.md"
         |> note_path()
         |> Note.from_path()
 
-      html = Note.read(note)
+      html = Note.parse_markdown(note)
 
       {:ok, doc} = Floki.parse_document(html)
 
@@ -82,7 +68,7 @@ defmodule XettelkastenServer.NoteTest do
         |> note_path()
         |> Note.from_path()
 
-      html = Note.read(note)
+      html = Note.parse_markdown(note)
 
       {:ok, doc} = Floki.parse_document(html)
 
@@ -101,7 +87,7 @@ defmodule XettelkastenServer.NoteTest do
         |> note_path()
         |> Note.from_path()
 
-      html = Note.read(note)
+      html = Note.parse_markdown(note)
 
       {:ok, doc} = Floki.parse_document(html)
 
@@ -121,7 +107,7 @@ defmodule XettelkastenServer.NoteTest do
         |> note_path()
         |> Note.from_path()
 
-      assert Note.read(note) == {:error, :enoent}
+      assert Note.parse_markdown(note) == {:error, :enoent}
     end
   end
 

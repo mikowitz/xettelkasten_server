@@ -1,16 +1,18 @@
 defmodule XettelkastenServer.Router do
   use Plug.Router
 
-  alias XettelkastenServer.{Note, Notes}
+  alias XettelkastenServer.{Note, Notes, TextHelpers}
 
   @templates_dir "lib/xettelkasten_server/templates"
+
+  plug(Plug.Logger, log: :debug)
 
   plug(
     Plug.Static,
     at: "/",
     from: "priv/static",
     gzip: false,
-    only: ~w(prism.css prism.js styles.css)
+    only: ~w(styles.css)
   )
 
   plug(:match)
@@ -33,11 +35,11 @@ defmodule XettelkastenServer.Router do
   match "/:slug" do
     case Notes.get(slug) do
       %Note{} = note ->
-        rendered_markdown = Note.read(note)
-        render(conn, "note", rendered_markdown: rendered_markdown)
+        rendered_markdown = Note.parse_markdown(note)
+        render(conn, "note", rendered_markdown: rendered_markdown, note: note)
 
       nil ->
-        %Note{path: expected_path} = Note.from_slug(slug)
+        expected_path = TextHelpers.slug_to_path(slug)
 
         conn
         |> put_status(404)
@@ -48,7 +50,11 @@ defmodule XettelkastenServer.Router do
   defp render(%{status: status} = conn, template, assigns) do
     inner_content = render_template(template, assigns)
 
-    body = render_template("root", inner_content: inner_content, template: template)
+    root_assigns =
+      [inner_content: inner_content, template: template]
+      |> Keyword.put(:note, assigns[:note] || nil)
+
+    body = render_template("root", root_assigns)
 
     send_resp(conn, status || 200, body)
   end

@@ -33,11 +33,28 @@ defmodule XettelkastenServer.RouterTest do
 
     links = Floki.find(doc, "li a")
 
-    assert conn.resp_body =~ ~r"Notes tagged with <b>#tag</b>"
+    assert conn.resp_body =~ ~r"Notes tagged with <span class=\"tag\">#tag</span>"
 
     assert {"a", [{"href", "/tag"}], ["Tag"]} in links
     refute {"a", [{"href", "/simple"}], ["Simple"]} in links
     refute {"a", [{"href", "/backlinks"}], ["Backlinks"]} in links
+  end
+
+  test "'/?tag=' works correctly with a tag in the yaml metadata" do
+    conn =
+      :get
+      |> conn("/", %{tag: "sweet"})
+      |> Router.call(@opts)
+
+    assert conn.status == 200
+    {:ok, doc} = Floki.parse_document(conn.resp_body)
+
+    links = Floki.find(doc, "li a")
+
+    assert conn.resp_body =~ ~r"Notes tagged with <span class=\"tag\">#sweet</span>"
+
+    assert length(links) == 1
+    assert {"a", [{"href", "/with_header"}], ["My Cool Note"]} in links
   end
 
   describe "'/:slug'" do
@@ -65,6 +82,20 @@ defmodule XettelkastenServer.RouterTest do
 
       tag_links = Floki.find(doc, "a.tag")
       assert {"a", [{"href", "/?tag=tag"}, {"class", "tag"}], ["#tag"]} in tag_links
+    end
+
+    test "renders a list of tags on the page in the side nav" do
+      conn =
+        :get
+        |> conn("/with_header")
+        |> Router.call(@opts)
+
+      assert conn.status == 200
+      {:ok, doc} = Floki.parse_document(conn.resp_body)
+
+      sidebar_tag_links = Floki.find(doc, "nav .nav-tags ul li.tag")
+
+      assert length(sidebar_tag_links) == 5
     end
 
     test "renders the content of the linked file" do

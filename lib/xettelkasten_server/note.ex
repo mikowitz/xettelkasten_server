@@ -1,22 +1,34 @@
 defmodule XettelkastenServer.Note do
-  defstruct [:path, :slug, :title]
+  defstruct [:path, :slug, :title, :markdown, tags: []]
+
+  alias XettelkastenServer.NoteFileReader
 
   def from_path(path) do
-    slug = path_to_slug(path)
-    title = path_to_title(path)
-    new(path, slug, title)
+    case File.read(path) do
+      {:ok, _body} ->
+        %{yaml: yaml, markdown: markdown} = NoteFileReader.read(path)
+
+        tags_from_yaml = Enum.map(yaml["tags"], &"##{&1}")
+        tags_from_body = extract_tags_from_markdown(markdown)
+
+        tags = Enum.sort(tags_from_yaml ++ tags_from_body) |> Enum.uniq()
+
+        %__MODULE__{
+          path: path,
+          slug: path_to_slug(path),
+          title: yaml["title"] || path_to_title(path),
+          tags: tags,
+          markdown: markdown
+        }
+
+      {:error, _} ->
+        nil
+    end
   end
 
-  def from_slug(slug) do
-    path = slug_to_path(slug)
-    title = path_to_title(path)
-    new(path, slug, title)
-  end
-
-  def from_title(title) do
-    slug = title_to_slug(title)
-    path = slug_to_path(slug)
-    new(path, slug, title)
+  defp extract_tags_from_markdown(text) do
+    Regex.scan(~r/#[^#\s]+/, text)
+    |> List.flatten()
   end
 
   def new(path, slug, title) do
@@ -27,12 +39,13 @@ defmodule XettelkastenServer.Note do
     }
   end
 
-  def read(%__MODULE__{path: path}) do
-    with {:ok, markdown} <- File.read(path),
-         {:ok, ast} <- XettelkastenServer.MarkdownParser.parse(markdown) do
+  def parse_markdown(%__MODULE__{markdown: markdown}) do
+    with {:ok, ast} <- XettelkastenServer.MarkdownParser.parse(markdown) do
       Earmark.Transform.transform(ast)
     end
   end
+
+  def parse_markdown(nil), do: {:error, :enoent}
 
   defp path_to_slug(path) do
     path
@@ -40,13 +53,6 @@ defmodule XettelkastenServer.Note do
     |> String.replace(XettelkastenServer.notes_directory(), "")
     |> String.trim_leading("/")
     |> String.replace("/", ".")
-  end
-
-  defp slug_to_path(slug) do
-    Path.join(
-      XettelkastenServer.notes_directory(),
-      String.replace(slug, ".", "/") <> ".md"
-    )
   end
 
   defp path_to_title(path) do
@@ -60,12 +66,5 @@ defmodule XettelkastenServer.Note do
       |> Enum.join(" ")
     end)
     |> Enum.join("/")
-  end
-
-  defp title_to_slug(title) do
-    title
-    |> String.downcase()
-    |> String.replace(" ", "_")
-    |> String.replace("/", ".")
   end
 end

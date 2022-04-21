@@ -1,6 +1,6 @@
 <%= if tag do %>
   <h3>
-    Notes tagged with <b>#<%= tag %></b>
+    Notes tagged with <span class="tag">#<%= tag %></span>
   </h3>
 <% end %>
 <ul>
