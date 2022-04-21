@@ -1,5 +1,5 @@
 defmodule XettelkastenServer.MarkdownParser do
-  alias XettelkastenServer.Note
+  alias XettelkastenServer.Backlink
 
   @backlink_regex ~r/\[\[[^]]+\]\]/
   @tag_regex ~r/\#[\S]+/
@@ -35,14 +35,14 @@ defmodule XettelkastenServer.MarkdownParser do
 
   defp parse_backlink("[[" <> str) do
     title = String.trim_trailing(str, "]")
-    note = Note.from_title(title)
+    note = Backlink.from_text(title)
 
     {
       "span",
       [{"class", "backlink"}],
       [
         "[[",
-        {"a", [{"href", "/#{note.slug}"}], [note.title], %{}},
+        {"a", [{"href", "/#{note.slug}"}], [note.text], %{}},
         "]]"
       ],
       %{}

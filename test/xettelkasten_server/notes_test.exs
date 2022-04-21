@@ -7,17 +7,19 @@ defmodule XettelkastenServer.NotesTest do
   describe "all" do
     test "untagged" do
       assert Notes.all() == [
-               Note.from_slug("backlinks"),
-               Note.from_slug("nested.bird"),
-               Note.from_slug("simple"),
-               Note.from_slug("simple_backlink"),
-               Note.from_slug("tag")
+               note_from_filepath("backlinks"),
+               note_from_filepath("nested/bird"),
+               note_from_filepath("simple"),
+               note_from_filepath("simple_backlink"),
+               note_from_filepath("tag"),
+               note_from_filepath("with_header"),
+               note_from_filepath("with_header_and_h1")
              ]
     end
 
     test "tagged" do
       assert Notes.all(tag: "tag") == [
-               Note.from_slug("tag")
+               note_from_filepath("tag")
              ]
     end
   end
@@ -27,12 +29,19 @@ defmodule XettelkastenServer.NotesTest do
       assert Notes.get("simple") == %Note{
                path: "test/support/notes/simple.md",
                slug: "simple",
-               title: "Simple"
+               title: "Simple",
+               markdown: "# A simple note\n\nHello there!\n"
              }
     end
 
     test "when the note doesn't exist" do
       refute Notes.get("not_a_note")
     end
+  end
+
+  def note_from_filepath(filepath) do
+    path = Path.join(XettelkastenServer.notes_directory(), filepath <> ".md")
+
+    Note.from_path(path)
   end
 end

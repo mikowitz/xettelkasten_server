@@ -14,21 +14,30 @@
       <h3>
         <a href="/"><%= if template != "notes", do: "← " %>Index</a>
       </h3>
-        <%= if template == "note" do %>
-          <div class="nav-tags">
-            <h5><u>Tags</u></h5>
-          </div>
+      <%= if note do %>
+        <div class="nav-tags">
+          <h5><u>Tags</u></h5>
+          <%= if length(note.tags) > 0 do %>
+            <ul>
+              <%= for tag <- note.tags do %>
+                <li class="tag">
+                  <a class="tag" href="/?tag=<%= String.trim_leading(tag, "#") %>"><%= tag %></a>
+                </li>
+              <% end %>
+            </ul>
+          <% end %>
+        </div>
 
-          <h4>Backlinks</h4>
+        <h4>Backlinks</h4>
 
-          <div class="nav-backlinks">
-            <h5><u>Outgoing</u></h5>
-          </div>
+        <div class="nav-backlinks">
+          <h5><u>Outgoing</u></h5>
+        </div>
 
-          <div class="nav-backlinks-incoming">
-            <h5><u>Incoming</u></h5>
-          </div>
-        <% end %>
+        <div class="nav-backlinks-incoming">
+          <h5><u>Incoming</u></h5>
+        </div>
+      <% end %>
     </nav>
     <main>
       <%= inner_content %>
