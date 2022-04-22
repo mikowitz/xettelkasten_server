@@ -29,8 +29,9 @@ defmodule XettelkastenServer.Notes do
 
   def find_note_from_link_text(text) do
     path = TextHelpers.text_to_path(text)
+    possible_title = String.downcase(text)
 
     all()
-    |> Enum.find(fn note -> note.path == path end)
+    |> Enum.find(fn note -> note.path == path || String.downcase(note.title) == possible_title end)
   end
 end

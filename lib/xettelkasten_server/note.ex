@@ -10,13 +10,14 @@ defmodule XettelkastenServer.Note do
 
         tags_from_yaml = Enum.map(yaml["tags"], &"##{&1}")
         tags_from_body = extract_tags_from_markdown(markdown)
+        title_from_body = extract_title_from_markdown(markdown)
 
         tags = Enum.sort(tags_from_yaml ++ tags_from_body) |> Enum.uniq()
 
         %__MODULE__{
           path: path,
           slug: path_to_slug(path),
-          title: yaml["title"] || path_to_title(path),
+          title: yaml["title"] || title_from_body || path_to_title(path),
           tags: tags,
           markdown: markdown
         }
@@ -29,6 +30,15 @@ defmodule XettelkastenServer.Note do
   defp extract_tags_from_markdown(text) do
     Regex.scan(~r/#[^#\s]+/, text)
     |> List.flatten()
+  end
+
+  defp extract_title_from_markdown(text) do
+    with {:ok, ast, _} <- Earmark.as_ast(text) do
+      case ast do
+        [{"h1", _, title, _} | _] -> title |> List.flatten() |> List.first()
+        _ -> nil
+      end
+    end
   end
 
   def new(path, slug, title) do
@@ -65,6 +75,6 @@ defmodule XettelkastenServer.Note do
       |> Enum.map(&String.capitalize/1)
       |> Enum.join(" ")
     end)
-    |> Enum.join("/")
+    |> Enum.join(" / ")
   end
 end

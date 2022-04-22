@@ -13,13 +13,7 @@ defmodule XettelkastenServer.MarkdownParser do
         |> detect_backlinks()
         |> detect_tags()
       end)
-
-    ast =
-      if title do
-        set_h1(ast, title)
-      else
-        ast
-      end
+      |> ensure_h1_tag(title)
 
     {:ok, ast}
   end
@@ -42,14 +36,19 @@ defmodule XettelkastenServer.MarkdownParser do
 
   defp parse_backlink("[[" <> str) do
     title = String.trim_trailing(str, "]")
-    note = Backlink.from_text(title)
+    backlink = Backlink.from_text(title)
+
+    classes =
+      ["backlink", if(backlink.missing, do: "missing")]
+      |> Enum.reject(&is_nil/1)
+      |> Enum.join(" ")
 
     {
       "span",
-      [{"class", "backlink"}],
+      [{"class", classes}],
       [
         "[[",
-        {"a", [{"href", "/#{note.slug}"}], [note.text], %{}},
+        {"a", [{"href", "/#{backlink.slug}"}], [backlink.text], %{}},
         "]]"
       ],
       %{}
@@ -80,14 +79,15 @@ defmodule XettelkastenServer.MarkdownParser do
 
   defp parse_tag(str), do: str
 
-  defp set_h1(ast, title) do
+  defp ensure_h1_tag(ast, nil), do: ast
+
+  defp ensure_h1_tag(ast, title) do
     case ast do
       [{"h1", _, _, _} | _] ->
         ast
 
       _ ->
-        h1 = {"h1", [], [[title]], %{}}
-        [h1, ast]
+        [{"h1", [], [[title]], %{}} | ast]
     end
   end
 end
