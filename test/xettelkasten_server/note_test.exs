@@ -10,7 +10,7 @@ defmodule XettelkastenServer.NoteTest do
       assert Note.from_path(path) == %Note{
                path: path,
                slug: "simple",
-               title: "Simple",
+               title: "A simple note",
                markdown: "# A simple note\n\nHello there!\n"
              }
     end
@@ -99,6 +99,34 @@ defmodule XettelkastenServer.NoteTest do
       assert String.trim(text) == "#tag"
       assert {"href", "/?tag=tag"} in attrs
       assert {"class", "tag"} in attrs
+    end
+
+    test "inserts a title from the metadata header if an h1 tag is not present" do
+      note =
+        "with_header.md"
+        |> note_path()
+        |> Note.from_path()
+
+      html = Note.parse_markdown(note)
+
+      {:ok, doc} = Floki.parse_document(html)
+
+      [{"h1", _, [header]}] = Floki.find(doc, "h1")
+      assert String.trim(header) == "My Cool Note"
+    end
+
+    test "inserts a titleized version of the note path when no h1 tag or header title is present" do
+      note =
+        "nested/no_title.md"
+        |> note_path()
+        |> Note.from_path()
+
+      html = Note.parse_markdown(note)
+
+      {:ok, doc} = Floki.parse_document(html)
+
+      [{"h1", _, [header]}] = Floki.find(doc, "h1")
+      assert String.trim(header) == "Nested / No Title"
     end
 
     test "returns posix error for a missing note" do

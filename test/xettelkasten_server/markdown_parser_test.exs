@@ -1,11 +1,11 @@
 defmodule XettelkastenServer.MarkdownParserTest do
   use ExUnit.Case, async: true
 
-  alias XettelkastenServer.{MarkdownParser, Note}
+  alias XettelkastenServer.MarkdownParser
 
   describe "backlinks" do
     test "parse correctly handles a simple backlink" do
-      {:ok, ast} = MarkdownParser.parse("[[hello]]")
+      {:ok, ast} = MarkdownParser.parse("[[simple]]")
 
       assert ast ==
                [
@@ -14,7 +14,7 @@ defmodule XettelkastenServer.MarkdownParserTest do
                     {"span", [{"class", "backlink"}],
                      [
                        "[[",
-                       {"a", [{"href", "/hello"}], ["hello"], %{}},
+                       {"a", [{"href", "/simple"}], ["simple"], %{}},
                        "]]"
                      ], %{}}
                   ], %{}}
@@ -22,7 +22,7 @@ defmodule XettelkastenServer.MarkdownParserTest do
     end
 
     test "parse correctly handles a nested backlink" do
-      {:ok, ast} = MarkdownParser.parse("- [[hello]]")
+      {:ok, ast} = MarkdownParser.parse("- [[simple]]")
 
       assert ast ==
                [
@@ -33,7 +33,7 @@ defmodule XettelkastenServer.MarkdownParserTest do
                        {"span", [{"class", "backlink"}],
                         [
                           "[[",
-                          {"a", [{"href", "/hello"}], ["hello"], %{}},
+                          {"a", [{"href", "/simple"}], ["simple"], %{}},
                           "]]"
                         ], %{}}
                      ], %{}}
@@ -41,28 +41,64 @@ defmodule XettelkastenServer.MarkdownParserTest do
                ]
     end
 
+    test "parse correctly handles a backlink with a missing file" do
+      {:ok, ast} = MarkdownParser.parse("[[no good]]")
+
+      assert ast ==
+               [
+                 {"p", [],
+                  [
+                    {"span", [{"class", "backlink missing"}],
+                     [
+                       "[[",
+                       {"a", [{"href", "/no_good"}], ["no good"], %{}},
+                       "]]"
+                     ], %{}}
+                  ], %{}}
+               ]
+    end
+
     test "parse correctly handles multiple backlinks in one line" do
-      {:ok, ast} = MarkdownParser.parse("this is [[one backlink]] and [[Another]]")
+      {:ok, ast} = MarkdownParser.parse("this is one [[backlinks]] and [[Another]]")
 
       assert ast ==
                [
                  {"p", [],
                   [
                     [
-                      "this is ",
+                      "this is one ",
                       {"span", [{"class", "backlink"}],
                        [
                          "[[",
-                         {"a", [{"href", "/one_backlink"}], ["one backlink"], %{}},
+                         {"a", [{"href", "/backlinks"}], ["backlinks"], %{}},
                          "]]"
                        ], %{}},
                       " and ",
-                      {"span", [{"class", "backlink"}],
+                      {"span", [{"class", "backlink missing"}],
                        [
                          "[[",
                          {"a", [{"href", "/another"}], ["Another"], %{}},
                          "]]"
                        ], %{}}
+                    ]
+                  ], %{}}
+               ]
+    end
+
+    test "correctly parse backlinks from path and title to the same note" do
+      {:ok, ast} = MarkdownParser.parse("[[Nested / Bird]] [[I'm a bird]]")
+
+      assert ast ==
+               [
+                 {"p", [],
+                  [
+                    [
+                      {"span", [{"class", "backlink"}],
+                       ["[[", {"a", [{"href", "/nested.bird"}], ["Nested / Bird"], %{}}, "]]"],
+                       %{}},
+                      " ",
+                      {"span", [{"class", "backlink"}],
+                       ["[[", {"a", [{"href", "/nested.bird"}], ["I'm a bird"], %{}}, "]]"], %{}}
                     ]
                   ], %{}}
                ]
@@ -116,28 +152,22 @@ defmodule XettelkastenServer.MarkdownParserTest do
     end
   end
 
-  describe "maybe_add_header_from_metadata" do
+  describe "ensure_h1_tag" do
     test "leaves an existing h1 tag unchanged" do
-      note = Note.from_path(note_path("with_header_and_h1"))
+      {:ok, ast} = MarkdownParser.parse("# Hello", "Better title")
 
-      {:ok, ast} = MarkdownParser.parse(note.markdown, "Hello")
-
-      assert {"h1", [], [["Foo bar"]], %{}} in ast
+      assert ast == [
+               {"h1", [], [["Hello"]], %{}}
+             ]
     end
 
     test "inserts a header from metadata if no h1 tag is present" do
-      note = Note.from_path(note_path("with_header"))
+      {:ok, ast} = MarkdownParser.parse("hello", "Better title")
 
-      {:ok, ast} = MarkdownParser.parse(note.markdown, "My Cool Note")
-
-      assert {"h1", [], [["My Cool Note"]], %{}} in ast
+      assert ast == [
+               {"h1", [], [["Better title"]], %{}},
+               {"p", [], [["hello"]], %{}}
+             ]
     end
-  end
-
-  defp note_path(filename) do
-    Path.join(
-      XettelkastenServer.notes_directory(),
-      filename <> ".md"
-    )
   end
 end

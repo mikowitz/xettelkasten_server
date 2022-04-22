@@ -62,6 +62,10 @@ span.backlink {
   color: var(--backlink-link-color);
 }
 
+span.backlink.missing {
+  text-decoration: line-through;
+}
+
 span.backlink a {
   color: var(--backlink-link-color);
   text-decoration: none;

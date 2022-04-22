@@ -18,7 +18,7 @@ defmodule XettelkastenServer.RouterTest do
     links = Floki.find(doc, "a")
 
     assert {"a", [{"href", "/"}], ["Index"]} in links
-    assert {"a", [{"href", "/simple"}], ["Simple"]} in links
+    assert {"a", [{"href", "/simple"}], ["A simple note"]} in links
     assert {"a", [{"href", "/backlinks"}], ["Backlinks"]} in links
   end
 
