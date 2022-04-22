@@ -1,7 +1,7 @@
 defmodule XettelkastenServer.MarkdownParserTest do
   use ExUnit.Case, async: true
 
-  alias XettelkastenServer.MarkdownParser
+  alias XettelkastenServer.{MarkdownParser, Note}
 
   describe "backlinks" do
     test "parse correctly handles a simple backlink" do
@@ -114,5 +114,30 @@ defmodule XettelkastenServer.MarkdownParserTest do
                   ], %{}}
                ]
     end
+  end
+
+  describe "maybe_add_header_from_metadata" do
+    test "leaves an existing h1 tag unchanged" do
+      note = Note.from_path(note_path("with_header_and_h1"))
+
+      {:ok, ast} = MarkdownParser.parse(note.markdown, "Hello")
+
+      assert {"h1", [], [["Foo bar"]], %{}} in ast
+    end
+
+    test "inserts a header from metadata if no h1 tag is present" do
+      note = Note.from_path(note_path("with_header"))
+
+      {:ok, ast} = MarkdownParser.parse(note.markdown, "My Cool Note")
+
+      assert {"h1", [], [["My Cool Note"]], %{}} in ast
+    end
+  end
+
+  defp note_path(filename) do
+    Path.join(
+      XettelkastenServer.notes_directory(),
+      filename <> ".md"
+    )
   end
 end

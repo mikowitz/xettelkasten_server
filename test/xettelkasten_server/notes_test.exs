@@ -13,7 +13,8 @@ defmodule XettelkastenServer.NotesTest do
                note_from_filepath("simple_backlink"),
                note_from_filepath("tag"),
                note_from_filepath("with_header"),
-               note_from_filepath("with_header_and_h1")
+               note_from_filepath("with_header_and_h1"),
+               note_from_filepath("with_neither_header_nor_h1")
              ]
     end
 

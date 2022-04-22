@@ -4,7 +4,7 @@ defmodule XettelkastenServer.MarkdownParser do
   @backlink_regex ~r/\[\[[^]]+\]\]/
   @tag_regex ~r/\#[\S]+/
 
-  def parse(markdown) when is_bitstring(markdown) do
+  def parse(markdown, title \\ nil) when is_bitstring(markdown) do
     {:ok, ast, _} = Earmark.as_ast(markdown)
 
     ast =
@@ -13,6 +13,13 @@ defmodule XettelkastenServer.MarkdownParser do
         |> detect_backlinks()
         |> detect_tags()
       end)
+
+    ast =
+      if title do
+        set_h1(ast, title)
+      else
+        ast
+      end
 
     {:ok, ast}
   end
@@ -72,4 +79,15 @@ defmodule XettelkastenServer.MarkdownParser do
   end
 
   defp parse_tag(str), do: str
+
+  defp set_h1(ast, title) do
+    case ast do
+      [{"h1", _, _, _} | _] ->
+        ast
+
+      _ ->
+        h1 = {"h1", [], [[title]], %{}}
+        [h1, ast]
+    end
+  end
 end
