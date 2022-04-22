@@ -27,6 +27,19 @@ defmodule XettelkastenServer.TextHelpers do
     |> Enum.join(".")
   end
 
+  def path_to_text(path) do
+    path
+    |> Path.rootname()
+    |> String.split("/")
+    |> Enum.map(fn nest ->
+      nest
+      |> String.split("_")
+      |> Enum.map(&String.capitalize/1)
+      |> Enum.join(" ")
+    end)
+    |> Enum.join(" / ")
+  end
+
   defp convert_spaces_to_underscores(text) do
     text
     |> String.downcase()

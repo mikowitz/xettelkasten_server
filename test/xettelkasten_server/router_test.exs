@@ -149,6 +149,51 @@ defmodule XettelkastenServer.RouterTest do
     end
   end
 
+  test "renders the correct initial h1 with h1 and metadata" do
+    conn =
+      :get
+      |> conn("/with_header_and_h1", "")
+      |> Router.call(@opts)
+
+    assert conn.status == 200
+
+    {:ok, doc} = Floki.parse_document(conn.resp_body)
+
+    [{"h1", _, [header]}] = Floki.find(doc, "h1")
+
+    assert String.trim(header) == "Foo bar"
+  end
+
+  test "renders the correct initial h1 with just metadata" do
+    conn =
+      :get
+      |> conn("/with_header", "")
+      |> Router.call(@opts)
+
+    assert conn.status == 200
+
+    {:ok, doc} = Floki.parse_document(conn.resp_body)
+
+    [{"h1", _, [header]}] = Floki.find(doc, "h1")
+
+    assert String.trim(header) == "My Cool Note"
+  end
+
+  test "renders the correct initial h1 with neither h1 nor metadata" do
+    conn =
+      :get
+      |> conn("/with_neither_header_nor_h1", "")
+      |> Router.call(@opts)
+
+    assert conn.status == 200
+
+    {:ok, doc} = Floki.parse_document(conn.resp_body)
+
+    [{"h1", _, [header]}] = Floki.find(doc, "h1")
+
+    assert String.trim(header) == "With Neither Header Nor H1"
+  end
+
   describe "/:slug with an invalid slug" do
     test "renders a 404 page if the unnested slug doesn't map to a existing file" do
       conn =

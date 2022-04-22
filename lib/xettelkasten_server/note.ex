@@ -39,8 +39,8 @@ defmodule XettelkastenServer.Note do
     }
   end
 
-  def parse_markdown(%__MODULE__{markdown: markdown}) do
-    with {:ok, ast} <- XettelkastenServer.MarkdownParser.parse(markdown) do
+  def parse_markdown(%__MODULE__{markdown: markdown, title: title}) do
+    with {:ok, ast} <- XettelkastenServer.MarkdownParser.parse(markdown, title) do
       Earmark.Transform.transform(ast)
     end
   end
