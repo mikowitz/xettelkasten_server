@@ -93,7 +93,7 @@ defmodule XettelkastenServer.RouterTest do
       assert conn.status == 200
       {:ok, doc} = Floki.parse_document(conn.resp_body)
 
-      sidebar_tag_links = Floki.find(doc, "nav .nav-tags ul li.tag")
+      sidebar_tag_links = Floki.find(doc, "nav .nav-list.tags ul li.tag")
 
       assert length(sidebar_tag_links) == 5
     end
