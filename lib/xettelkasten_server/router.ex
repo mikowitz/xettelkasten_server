@@ -3,7 +3,7 @@ defmodule XettelkastenServer.Router do
 
   alias XettelkastenServer.{Note, Notes, TextHelpers}
 
-  @templates_dir "lib/xettelkasten_server/templates"
+  @templates_dir "priv/static/templates"
 
   plug(Plug.Logger, log: :debug)
 
