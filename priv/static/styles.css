@@ -38,6 +38,7 @@ nav .nav-list ul {
   list-style: none;
   padding-left: 8px;
   margin-top: 8px;
+  line-height: 1.3em;
 }
 
 nav .nav-list h4 {
@@ -62,6 +63,10 @@ a:hover {
   color: var(--tag-link-color);
 }
 
+.backlink {
+  color: var(--backlink-link-color);
+}
+
 a.tag {
   color: var(--tag-link-color);
   text-decoration: none;
@@ -75,16 +80,16 @@ span.backlink {
   color: var(--backlink-link-color);
 }
 
-span.backlink.missing {
+.backlink.missing {
   text-decoration: line-through;
 }
 
-span.backlink a {
+.backlink a {
   color: var(--backlink-link-color);
   text-decoration: none;
 }
 
-span.backlink a:hover {
+.backlink a:hover {
   color: var(--backlink-hover-color);
 }
 

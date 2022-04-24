@@ -5,7 +5,7 @@ defmodule XettelkastenServer.MarkdownParserTest do
 
   describe "backlinks" do
     test "parse correctly handles a simple backlink" do
-      {:ok, ast} = MarkdownParser.parse("[[simple]]")
+      {:ok, ast, _} = MarkdownParser.parse("[[simple]]")
 
       assert ast ==
                [
@@ -22,7 +22,7 @@ defmodule XettelkastenServer.MarkdownParserTest do
     end
 
     test "parse correctly handles a nested backlink" do
-      {:ok, ast} = MarkdownParser.parse("- [[simple]]")
+      {:ok, ast, _} = MarkdownParser.parse("- [[simple]]")
 
       assert ast ==
                [
@@ -42,7 +42,7 @@ defmodule XettelkastenServer.MarkdownParserTest do
     end
 
     test "parse correctly handles a backlink with a missing file" do
-      {:ok, ast} = MarkdownParser.parse("[[no good]]")
+      {:ok, ast, _} = MarkdownParser.parse("[[no good]]")
 
       assert ast ==
                [
@@ -59,7 +59,7 @@ defmodule XettelkastenServer.MarkdownParserTest do
     end
 
     test "parse correctly handles multiple backlinks in one line" do
-      {:ok, ast} = MarkdownParser.parse("this is one [[backlinks]] and [[Another]]")
+      {:ok, ast, _} = MarkdownParser.parse("this is one [[backlinks]] and [[Another]]")
 
       assert ast ==
                [
@@ -84,30 +84,11 @@ defmodule XettelkastenServer.MarkdownParserTest do
                   ], %{}}
                ]
     end
-
-    test "correctly parse backlinks from path and title to the same note" do
-      {:ok, ast} = MarkdownParser.parse("[[Nested / Bird]] [[I'm a bird]]")
-
-      assert ast ==
-               [
-                 {"p", [],
-                  [
-                    [
-                      {"span", [{"class", "backlink"}],
-                       ["[[", {"a", [{"href", "/nested.bird"}], ["Nested / Bird"], %{}}, "]]"],
-                       %{}},
-                      " ",
-                      {"span", [{"class", "backlink"}],
-                       ["[[", {"a", [{"href", "/nested.bird"}], ["I'm a bird"], %{}}, "]]"], %{}}
-                    ]
-                  ], %{}}
-               ]
-    end
   end
 
   describe "tags" do
     test "single tag" do
-      {:ok, ast} = MarkdownParser.parse("#tag")
+      {:ok, ast, _} = MarkdownParser.parse("#tag")
 
       assert ast ==
                [
@@ -119,7 +100,7 @@ defmodule XettelkastenServer.MarkdownParserTest do
     end
 
     test "multiple tags" do
-      {:ok, ast} = MarkdownParser.parse("#tag #second_tag")
+      {:ok, ast, _} = MarkdownParser.parse("#tag #second_tag")
 
       assert ast ==
                [
@@ -136,7 +117,7 @@ defmodule XettelkastenServer.MarkdownParserTest do
     end
 
     test "non-initial tag" do
-      {:ok, ast} = MarkdownParser.parse("this tag is a #tag tag")
+      {:ok, ast, _} = MarkdownParser.parse("this tag is a #tag tag")
 
       assert ast ==
                [
@@ -154,7 +135,7 @@ defmodule XettelkastenServer.MarkdownParserTest do
 
   describe "ensure_h1_tag" do
     test "leaves an existing h1 tag unchanged" do
-      {:ok, ast} = MarkdownParser.parse("# Hello", "Better title")
+      {:ok, ast, _} = MarkdownParser.parse("# Hello", "Better title")
 
       assert ast == [
                {"h1", [], [["Hello"]], %{}}
@@ -162,7 +143,7 @@ defmodule XettelkastenServer.MarkdownParserTest do
     end
 
     test "inserts a header from metadata if no h1 tag is present" do
-      {:ok, ast} = MarkdownParser.parse("hello", "Better title")
+      {:ok, ast, _} = MarkdownParser.parse("hello", "Better title")
 
       assert ast == [
                {"h1", [], [["Better title"]], %{}},
