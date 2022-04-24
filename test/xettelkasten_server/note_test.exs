@@ -1,18 +1,20 @@
 defmodule XettelkastenServer.NoteTest do
   use ExUnit.Case, async: true
 
-  alias XettelkastenServer.Note
+  alias XettelkastenServer.{Backlink, Note}
 
   describe "from_path" do
     test "unnested" do
       path = note_path("simple.md")
 
-      assert Note.from_path(path) == %Note{
-               path: path,
+      assert %Note{
+               path: ^path,
                slug: "simple",
                title: "A simple note",
-               markdown: "# A simple note\n\nHello there!\n"
-             }
+               tags: [],
+               html: "<h1>\nA simple note</h1>\n<p>\nHello there!</p>\n",
+               backlinks: []
+             } = Note.from_path(path)
     end
 
     test "when the file doesn't exist" do
@@ -24,118 +26,32 @@ defmodule XettelkastenServer.NoteTest do
     test "with header metadata" do
       path = note_path("with_header.md")
 
-      assert Note.from_path(path) == %Note{
-               path: path,
+      backlink_path = note_path("backlink.md")
+
+      assert %Note{
+               path: ^path,
                slug: "with_header",
                title: "My Cool Note",
                tags: ~w(#awesome #more_tags #prettycool #sweet #tags),
-               markdown:
-                 "\nThis is just the rest of the post with a [[backlink]]\n\nand some #tags #more_tags #awesome\n"
-             }
+               backlinks: [
+                 %Backlink{
+                   missing: true,
+                   path: ^backlink_path,
+                   text: "backlink",
+                   slug: "backlink"
+                 }
+               ]
+             } = Note.from_path(path)
     end
 
     test "with header metadata and an h1 tag" do
       path = note_path("with_header_and_h1.md")
 
-      assert Note.from_path(path) == %Note{
-               path: path,
+      assert %Note{
+               path: ^path,
                slug: "with_header_and_h1",
-               title: "Hello",
-               tags: [],
-               markdown: "# Foo bar\n"
-             }
-    end
-  end
-
-  describe "parse_markdown" do
-    test "returns Earmark tuple for an existing note" do
-      note =
-        "simple.md"
-        |> note_path()
-        |> Note.from_path()
-
-      html = Note.parse_markdown(note)
-
-      {:ok, doc} = Floki.parse_document(html)
-
-      [{"h1", _, [header]}] = Floki.find(doc, "h1")
-      assert String.trim(header) == "A simple note"
-    end
-
-    test "correctly parses markdown with backlinks" do
-      note =
-        "simple_backlink.md"
-        |> note_path()
-        |> Note.from_path()
-
-      html = Note.parse_markdown(note)
-
-      {:ok, doc} = Floki.parse_document(html)
-
-      [{"h1", _, [header]}] = Floki.find(doc, "h1")
-      assert String.trim(header) == "Simple backlink"
-
-      [{"a", attrs, [text]}] = Floki.find(doc, "a")
-
-      assert attrs == [{"href", "/very_simple"}]
-      assert String.trim(text) == "very simple"
-    end
-
-    test "correctly parses markdown with tags" do
-      note =
-        "tag.md"
-        |> note_path()
-        |> Note.from_path()
-
-      html = Note.parse_markdown(note)
-
-      {:ok, doc} = Floki.parse_document(html)
-
-      [{"h1", _, [header]}] = Floki.find(doc, "h1")
-      assert String.trim(header) == "Tag"
-
-      [{"a", attrs, [text]}] = Floki.find(doc, "a.tag")
-
-      assert String.trim(text) == "#tag"
-      assert {"href", "/?tag=tag"} in attrs
-      assert {"class", "tag"} in attrs
-    end
-
-    test "inserts a title from the metadata header if an h1 tag is not present" do
-      note =
-        "with_header.md"
-        |> note_path()
-        |> Note.from_path()
-
-      html = Note.parse_markdown(note)
-
-      {:ok, doc} = Floki.parse_document(html)
-
-      [{"h1", _, [header]}] = Floki.find(doc, "h1")
-      assert String.trim(header) == "My Cool Note"
-    end
-
-    test "inserts a titleized version of the note path when no h1 tag or header title is present" do
-      note =
-        "nested/no_title.md"
-        |> note_path()
-        |> Note.from_path()
-
-      html = Note.parse_markdown(note)
-
-      {:ok, doc} = Floki.parse_document(html)
-
-      [{"h1", _, [header]}] = Floki.find(doc, "h1")
-      assert String.trim(header) == "Nested / No Title"
-    end
-
-    test "returns posix error for a missing note" do
-      note =
-        "not_a_note.md"
-        |> note_path()
-        |> Note.from_path()
-
-      assert Note.parse_markdown(note) == {:error, :enoent}
+               title: "Hello"
+             } = Note.from_path(path)
     end
   end
 

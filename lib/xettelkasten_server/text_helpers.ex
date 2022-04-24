@@ -1,6 +1,18 @@
 defmodule XettelkastenServer.TextHelpers do
   import XettelkastenServer, only: [notes_directory: 0]
 
+  def titleize(s) do
+    s
+    |> String.split("/", trim: true)
+    |> Enum.map(fn nest ->
+      nest
+      |> String.split(" ", trim: true)
+      |> Enum.map(&String.capitalize/1)
+      |> Enum.join(" ")
+    end)
+    |> Enum.join(" / ")
+  end
+
   def slug_to_path(slug) do
     filepath =
       slug

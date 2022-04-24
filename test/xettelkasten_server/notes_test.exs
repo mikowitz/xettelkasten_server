@@ -28,12 +28,11 @@ defmodule XettelkastenServer.NotesTest do
 
   describe "get" do
     test "when the note exists" do
-      assert Notes.get("simple") == %Note{
+      assert %Note{
                path: "test/support/notes/simple.md",
                slug: "simple",
-               title: "A simple note",
-               markdown: "# A simple note\n\nHello there!\n"
-             }
+               title: "A simple note"
+             } = Notes.get("simple")
     end
 
     test "when the note doesn't exist" do
@@ -41,17 +40,11 @@ defmodule XettelkastenServer.NotesTest do
     end
   end
 
-  describe "find_note_from_link_text" do
-    test "when the text parses into a note path" do
-      assert Notes.find_note_from_link_text("Nested / Bird") == Notes.get("nested.bird")
-    end
+  describe "with_backlinks_to" do
+    test "returns a list of notes that link to the given slug" do
+      notes = Notes.with_backlinks_to("backlinks")
 
-    test "when the text parses to a note's title" do
-      assert Notes.find_note_from_link_text("I'm a bird") == Notes.get("nested.bird")
-    end
-
-    test "when no note can be found" do
-      refute Notes.find_note_from_link_text("No chance in hell")
+      assert notes == [note_from_filepath("with_neither_header_nor_h1")]
     end
   end
 

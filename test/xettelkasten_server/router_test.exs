@@ -93,9 +93,51 @@ defmodule XettelkastenServer.RouterTest do
       assert conn.status == 200
       {:ok, doc} = Floki.parse_document(conn.resp_body)
 
-      sidebar_tag_links = Floki.find(doc, "nav .nav-list.tags ul li.tag")
+      sidebar_tag_links = Floki.find(doc, "nav .nav-list.tags ul li.tag a")
 
       assert length(sidebar_tag_links) == 5
+
+      assert Enum.map(sidebar_tag_links, fn {_, _, [tag]} -> tag end) ==
+               ~w(#awesome #more_tags #prettycool #sweet #tags)
+    end
+
+    test "renders a list of outgoing backlinks in the side nav" do
+      conn =
+        :get
+        |> conn("/simple_backlink")
+        |> Router.call(@opts)
+
+      assert conn.status == 200
+      {:ok, doc} = Floki.parse_document(conn.resp_body)
+
+      sidebar_backlink_links =
+        Floki.find(doc, "nav .nav-list.outgoing-backlinks ul li.backlink a")
+
+      assert length(sidebar_backlink_links) == 1
+
+      assert sidebar_backlink_links ==
+               [{"a", [{"class", "backlink"}, {"href", "/very_simple"}], ["Very Simple"]}]
+    end
+
+    test "renders a list of incoming backlinks in the side nav" do
+      conn =
+        :get
+        |> conn("/backlinks")
+        |> Router.call(@opts)
+
+      assert conn.status == 200
+      {:ok, doc} = Floki.parse_document(conn.resp_body)
+
+      sidebar_backlink_links =
+        Floki.find(doc, "nav .nav-list.incoming-backlinks ul li.backlink a")
+
+      assert length(sidebar_backlink_links) == 1
+
+      assert sidebar_backlink_links ==
+               [
+                 {"a", [{"class", "backlink"}, {"href", "/with_neither_header_nor_h1"}],
+                  ["With Neither Header Nor H1"]}
+               ]
     end
 
     test "renders the content of the linked file" do

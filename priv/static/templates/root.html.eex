@@ -27,6 +27,32 @@
               </ul>
           </div>
         <% end %>
+
+        <%= if length(note.backlinks) > 0 do %>
+          <div class="nav-list outgoing-backlinks">
+            <h4>Notes linked from this note</h4>
+            <ul>
+              <%= for backlink <- note.backlinks do %>
+                <li class="backlink <%= if backlink.missing, do: "missing" %>">
+                  [[<a class="backlink" href="/<%= backlink.slug %>"><%= XettelkastenServer.TextHelpers.titleize(backlink.text) %></a>]]
+                </li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+
+        <%= if length(incoming_backlinks) > 0 do %>
+          <div class="nav-list incoming-backlinks">
+            <h4>Notes linking to this note</h4>
+            <ul>
+              <%= for backlink <- incoming_backlinks do %>
+                <li class="backlink <%= if backlink.missing, do: "missing" %>">
+                  [[<a class="backlink" href="/<%= backlink.slug %>"><%= XettelkastenServer.TextHelpers.titleize(backlink.text) %></a>]]
+                </li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
       <% end %>
     </nav>
     <main>

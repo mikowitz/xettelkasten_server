@@ -1,7 +1,7 @@
 defmodule XettelkastenServer.Router do
   use Plug.Router
 
-  alias XettelkastenServer.{Note, Notes, TextHelpers}
+  alias XettelkastenServer.{Backlink, Note, Notes, TextHelpers}
 
   @templates_dir "priv/static/templates"
 
@@ -35,8 +35,21 @@ defmodule XettelkastenServer.Router do
   match "/:slug" do
     case Notes.get(slug) do
       %Note{} = note ->
-        rendered_markdown = Note.parse_markdown(note)
-        render(conn, "note", rendered_markdown: rendered_markdown, note: note)
+        incoming_backlinks =
+          Notes.with_backlinks_to(note.slug)
+          |> Enum.map(fn note ->
+            note.path
+            |> String.replace(XettelkastenServer.notes_directory(), "")
+            |> String.trim_leading("/")
+            |> TextHelpers.path_to_text()
+            |> Backlink.from_text()
+          end)
+
+        render(conn, "note",
+          rendered_markdown: note.html,
+          incoming_backlinks: incoming_backlinks,
+          note: note
+        )
 
       nil ->
         expected_path = TextHelpers.slug_to_path(slug)
@@ -53,6 +66,7 @@ defmodule XettelkastenServer.Router do
     root_assigns =
       [inner_content: inner_content, template: template]
       |> Keyword.put(:note, assigns[:note] || nil)
+      |> Keyword.put(:incoming_backlinks, assigns[:incoming_backlinks] || [])
 
     body = render_template("root", root_assigns)
 

@@ -1,5 +1,5 @@
 defmodule XettelkastenServer.Notes do
-  alias XettelkastenServer.{Note, TextHelpers}
+  alias XettelkastenServer.Note
 
   def all do
     XettelkastenServer.notes_directory()
@@ -27,11 +27,10 @@ defmodule XettelkastenServer.Notes do
     |> Enum.find(&(&1.slug == slug))
   end
 
-  def find_note_from_link_text(text) do
-    path = TextHelpers.text_to_path(text)
-    possible_title = String.downcase(text)
-
+  def with_backlinks_to(slug) do
     all()
-    |> Enum.find(fn note -> note.path == path || String.downcase(note.title) == possible_title end)
+    |> Enum.filter(fn %{backlinks: backlinks} ->
+      slug in Enum.map(backlinks, & &1.slug)
+    end)
   end
 end

@@ -1,5 +1,5 @@
 defmodule XettelkastenServer.Note do
-  defstruct [:path, :slug, :title, :markdown, tags: []]
+  defstruct [:path, :slug, :title, :html, tags: [], backlinks: []]
 
   alias XettelkastenServer.NoteFileReader
 
@@ -14,12 +14,17 @@ defmodule XettelkastenServer.Note do
 
         tags = Enum.sort(tags_from_yaml ++ tags_from_body) |> Enum.uniq()
 
+        title = yaml["title"] || title_from_body || path_to_title(path)
+
+        {:ok, html, backlinks} = extract_backlinks_from_markdown(markdown, title)
+
         %__MODULE__{
           path: path,
           slug: path_to_slug(path),
-          title: yaml["title"] || title_from_body || path_to_title(path),
+          title: title,
           tags: tags,
-          markdown: markdown
+          html: html,
+          backlinks: backlinks
         }
 
       {:error, _} ->
@@ -41,6 +46,12 @@ defmodule XettelkastenServer.Note do
     end
   end
 
+  defp extract_backlinks_from_markdown(markdown, title) do
+    with {:ok, ast, backlinks} <- XettelkastenServer.MarkdownParser.parse(markdown, title) do
+      {:ok, Earmark.Transform.transform(ast), backlinks}
+    end
+  end
+
   def new(path, slug, title) do
     %__MODULE__{
       path: path,
@@ -48,14 +59,6 @@ defmodule XettelkastenServer.Note do
       title: title
     }
   end
-
-  def parse_markdown(%__MODULE__{markdown: markdown, title: title}) do
-    with {:ok, ast} <- XettelkastenServer.MarkdownParser.parse(markdown, title) do
-      Earmark.Transform.transform(ast)
-    end
-  end
-
-  def parse_markdown(nil), do: {:error, :enoent}
 
   defp path_to_slug(path) do
     path
