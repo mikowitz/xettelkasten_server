@@ -116,7 +116,7 @@ defmodule XettelkastenServer.RouterTest do
       assert length(sidebar_backlink_links) == 1
 
       assert sidebar_backlink_links ==
-               [{"a", [{"class", "backlink"}, {"href", "/very_simple"}], ["Very Simple"]}]
+               [{"a", [{"class", "backlink"}, {"href", "/very_simple"}], ["A Very Simple Backlink"]}]
     end
 
     test "renders a list of incoming backlinks in the side nav" do

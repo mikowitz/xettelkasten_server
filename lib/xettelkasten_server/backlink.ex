@@ -8,12 +8,23 @@ defmodule XettelkastenServer.Backlink do
   alias XettelkastenServer.TextHelpers
 
   def from_text(text) do
-    path = TextHelpers.text_to_path(text)
+    {path, title} =
+      case String.split(text, "|", trim: true) do
+        [path] ->
+          path = String.trim(path)
+          {path, path}
+
+        [path, title] ->
+          {String.trim(path), String.trim(title)}
+      end
+
+    slug = TextHelpers.text_to_slug(path)
+    path = TextHelpers.text_to_path(path)
 
     %__MODULE__{
-      text: text,
+      text: title,
       path: path,
-      slug: TextHelpers.text_to_slug(text),
+      slug: slug,
       missing: !File.exists?(path)
     }
   end

@@ -1,3 +1,3 @@
 # Simple backlink
 
-[[very simple]]
+[[very simple|A Very Simple Backlink]]
