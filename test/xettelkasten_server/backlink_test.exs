@@ -30,5 +30,15 @@ defmodule XettelkastenServer.BacklinkTest do
       assert backlink.slug == "not_a_note"
       assert backlink.missing
     end
+
+    test "works with a backlink specifying path and title" do
+      backlink = Backlink.from_text("simple|A Simple Note")
+
+      assert backlink.text == "A Simple Note"
+      assert backlink.path == Path.join(XettelkastenServer.notes_directory(), "simple.md")
+      assert backlink.slug == "simple"
+      refute backlink.missing
+
+    end
   end
 end
