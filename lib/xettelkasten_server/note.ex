@@ -1,4 +1,8 @@
 defmodule XettelkastenServer.Note do
+  @moduledoc """
+    Models a note, encapsulating its content, tags, and backlinks.
+  """
+
   defstruct [:path, :slug, :title, :html, tags: [], backlinks: []]
 
   alias XettelkastenServer.NoteFileReader
@@ -72,12 +76,10 @@ defmodule XettelkastenServer.Note do
     path
     |> path_to_slug()
     |> String.split(".")
-    |> Enum.map(fn level ->
+    |> Enum.map_join(" / ", fn level ->
       level
       |> String.split("_")
-      |> Enum.map(&String.capitalize/1)
-      |> Enum.join(" ")
+      |> Enum.map_join(" ", &String.capitalize/1)
     end)
-    |> Enum.join(" / ")
   end
 end

@@ -1,4 +1,8 @@
 defmodule XettelkastenServer.NoteFileReader do
+  @moduledoc """
+    Responsible for reading note markdown files and separating out and parsing an optional YAML header.
+  """
+
   @empty_yaml %{"tags" => [], "title" => nil}
 
   def read(path) do
