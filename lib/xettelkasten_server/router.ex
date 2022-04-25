@@ -3,14 +3,15 @@ defmodule XettelkastenServer.Router do
 
   alias XettelkastenServer.{Backlink, Note, Notes, TextHelpers}
 
-  @templates_dir "priv/static/templates"
+  @priv_static Path.join(Path.dirname(__ENV__.file), "../../priv/static")
+  @templates_dir Path.join(@priv_static, "templates")
 
   plug(Plug.Logger, log: :debug)
 
   plug(
     Plug.Static,
     at: "/",
-    from: "priv/static",
+    from: @priv_static,
     gzip: false,
     only: ~w(styles.css)
   )
