@@ -1,4 +1,8 @@
 defmodule XettelkastenServer.MarkdownParser do
+  @moduledoc """
+    Custom XettelkastenServer functions for parsing markdown as an Earmark AST tree
+  """
+
   alias XettelkastenServer.Backlink
 
   @backlink_regex ~r/\[\[[^]]+\]\]/

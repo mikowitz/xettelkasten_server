@@ -22,6 +22,7 @@ defmodule XettelkastenServer.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
       {:earmark, "~> 1.4.24"},
       {:floki, "~> 0.32.0", only: [:dev, :test]},
       {:plug_cowboy, "~> 2.0"},

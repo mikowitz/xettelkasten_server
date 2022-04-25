@@ -1,4 +1,8 @@
 defmodule XettelkastenServer.Notes do
+  @moduledoc """
+    Query methods for notes
+  """
+
   alias XettelkastenServer.Note
 
   def all do

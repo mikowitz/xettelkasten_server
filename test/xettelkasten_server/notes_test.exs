@@ -1,8 +1,7 @@
 defmodule XettelkastenServer.NotesTest do
   use ExUnit.Case, async: true
 
-  alias XettelkastenServer.Notes
-  alias XettelkastenServer.Note
+  alias XettelkastenServer.{Note, Notes}
 
   describe "all" do
     test "untagged" do

@@ -1,16 +1,18 @@
 defmodule XettelkastenServer.TextHelpers do
+  @moduledoc """
+      Common helper functions for converting between file paths, URL slugs, and titles
+  """
+
   import XettelkastenServer, only: [notes_directory: 0]
 
   def titleize(s) do
     s
     |> String.split("/", trim: true)
-    |> Enum.map(fn nest ->
+    |> Enum.map_join(" /", fn nest ->
       nest
       |> String.split(" ", trim: true)
-      |> Enum.map(&String.capitalize/1)
-      |> Enum.join(" ")
+      |> Enum.map_join(" ", &String.capitalize/1)
     end)
-    |> Enum.join(" / ")
   end
 
   def slug_to_path(slug) do
@@ -43,13 +45,11 @@ defmodule XettelkastenServer.TextHelpers do
     path
     |> Path.rootname()
     |> String.split("/")
-    |> Enum.map(fn nest ->
+    |> Enum.map_join(" / ", fn nest ->
       nest
       |> String.split("_")
-      |> Enum.map(&String.capitalize/1)
-      |> Enum.join(" ")
+      |> Enum.map_join(" ", &String.capitalize/1)
     end)
-    |> Enum.join(" / ")
   end
 
   defp convert_spaces_to_underscores(text) do
