@@ -18,6 +18,7 @@ defmodule XettelkastenServer.MarkdownParser do
         node
         |> detect_backlinks(backlink_agent)
         |> detect_tags()
+        |> prismify()
       end)
       |> ensure_h1_tag(title)
 
@@ -102,4 +103,14 @@ defmodule XettelkastenServer.MarkdownParser do
         [{"h1", [], [[title]], %{}} | ast]
     end
   end
+
+  defp prismify({"code", attrs, content, extra}) do
+    {"class", lang} = class_attr = Enum.find(attrs, fn {key, _} -> key == "class" end)
+    new_class_attr = {"class", "language-#{lang}"}
+
+    new_attrs = List.delete(attrs, class_attr) |> List.insert_at(0, new_class_attr)
+    {"code", new_attrs, content, extra}
+  end
+
+  defp prismify(ast), do: ast
 end

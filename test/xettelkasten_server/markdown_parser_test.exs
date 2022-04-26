@@ -151,4 +151,23 @@ defmodule XettelkastenServer.MarkdownParserTest do
              ]
     end
   end
+
+  describe "complete-prism-tags" do
+    test "it prefixes the language class name with `language-`" do
+      content = """
+      ```elixir
+      defmodule Foo do
+      def bar, do: :ok
+      end
+      ```
+      """
+
+      {:ok, ast, _} = MarkdownParser.parse(content)
+
+      {"pre", _, [{"code", code_attrs, _, _}], _} = Enum.find(ast, fn {tag, _, _, _} -> tag == "pre" end)
+
+      assert {"class", "language-elixir"} in code_attrs
+
+    end
+  end
 end
