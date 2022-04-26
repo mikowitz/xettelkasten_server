@@ -13,7 +13,7 @@ defmodule XettelkastenServer.Router do
     at: "/",
     from: @priv_static,
     gzip: false,
-    only: ~w(styles.css)
+    only: ~w(app.css app.js)
   )
 
   plug(:match)
