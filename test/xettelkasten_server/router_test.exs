@@ -98,7 +98,7 @@ defmodule XettelkastenServer.RouterTest do
       assert length(sidebar_tag_links) == 5
 
       assert Enum.map(sidebar_tag_links, fn {_, _, [tag]} -> tag end) ==
-               ~w(#awesome #more_tags #prettycool #sweet #tags)
+               ~w(awesome more_tags prettycool sweet tags)
     end
 
     test "renders a list of outgoing backlinks in the side nav" do
@@ -116,7 +116,10 @@ defmodule XettelkastenServer.RouterTest do
       assert length(sidebar_backlink_links) == 1
 
       assert sidebar_backlink_links ==
-               [{"a", [{"class", "backlink"}, {"href", "/very_simple"}], ["A Very Simple Backlink"]}]
+               [
+                 {"a", [{"class", "backlink"}, {"href", "/very_simple"}],
+                  ["A Very Simple Backlink"]}
+               ]
     end
 
     test "renders a list of incoming backlinks in the side nav" do

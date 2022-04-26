@@ -35,6 +35,9 @@ jobs:
         - otp: 21
           elixir: "1.13.3"
     steps:
+      - name: install inotify
+        run: sudo apt-get install -y inotify-tools
+
       - uses: actions/checkout@v2.4.0
 
       - uses: erlef/setup-beam@v1
@@ -65,4 +68,5 @@ jobs:
         if: steps.mix-cache.outputs.cache-hit != 'true'
 
       - name: mix test
-        run: mix test
+        run: FILE_WATCHER_DELAY_MS=1000 mix test
+

@@ -3,27 +3,15 @@ defmodule XettelkastenServer.Notes do
     Query methods for notes
   """
 
-  alias XettelkastenServer.Note
+  alias XettelkastenServer.NoteWatcher
 
   def all do
-    XettelkastenServer.notes_directory()
-    |> Path.join("**/*.md")
-    |> Path.wildcard()
-    |> Enum.map(&Note.from_path/1)
+    NoteWatcher.notes()
   end
 
   def all(tag: tag) when is_bitstring(tag) do
-    {paths_from_md_tag, _} =
-      System.cmd("grep", ["-lr", "-e", "##{tag}\\b", XettelkastenServer.notes_directory()])
-
-    {paths_from_yaml_tag, _} =
-      System.cmd("grep", ["-lr", "-e", "- #{tag}\\b", XettelkastenServer.notes_directory()])
-
-    paths = paths_from_md_tag <> "\n" <> paths_from_yaml_tag
-
-    paths
-    |> String.split("\n", trim: true)
-    |> Enum.map(&Note.from_path/1)
+    all()
+    |> Enum.filter(&(tag in &1.tags))
   end
 
   def get(slug) do
