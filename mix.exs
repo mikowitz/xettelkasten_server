@@ -24,6 +24,7 @@ defmodule XettelkastenServer.MixProject do
     [
       {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
       {:earmark, "~> 1.4.24"},
+      {:file_system, "~> 0.2"},
       {:floki, "~> 0.32.0", only: [:dev, :test]},
       {:plug_cowboy, "~> 2.0"},
       {:mix_test_watch, "~> 1.0", only: [:dev, :test], runtime: false},

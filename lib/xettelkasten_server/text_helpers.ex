@@ -62,4 +62,10 @@ defmodule XettelkastenServer.TextHelpers do
       |> String.replace(" ", "_")
     end)
   end
+
+  def trim_path(path) do
+    path
+    |> String.replace(Path.absname(""), "")
+    |> String.trim_leading("/")
+  end
 end

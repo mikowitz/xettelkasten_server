@@ -12,7 +12,7 @@ defmodule XettelkastenServer.Note do
       {:ok, _body} ->
         %{yaml: yaml, markdown: markdown} = NoteFileReader.read(path)
 
-        tags_from_yaml = Enum.map(yaml["tags"], &"##{&1}")
+        tags_from_yaml = yaml["tags"]
         tags_from_body = extract_tags_from_markdown(markdown)
         title_from_body = extract_title_from_markdown(markdown)
 
@@ -37,7 +37,8 @@ defmodule XettelkastenServer.Note do
   end
 
   defp extract_tags_from_markdown(text) do
-    Regex.scan(~r/#[^#\s]+/, text)
+    Regex.scan(~r/#([^#\s]+)/, text)
+    |> Enum.map(fn [_, tag] -> tag end)
     |> List.flatten()
   end
 

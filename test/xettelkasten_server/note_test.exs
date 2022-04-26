@@ -32,7 +32,7 @@ defmodule XettelkastenServer.NoteTest do
                path: ^path,
                slug: "with_header",
                title: "My Cool Note",
-               tags: ~w(#awesome #more_tags #prettycool #sweet #tags),
+               tags: ~w(awesome more_tags prettycool sweet tags),
                backlinks: [
                  %Backlink{
                    missing: true,
