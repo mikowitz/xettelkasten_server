@@ -9,7 +9,8 @@ defmodule XettelkastenServer.NoteWatcher do
 
   @watcher_name XettelkastenServer.NoteWatcher.Watcher
 
-  alias XettelkastenServer.{Note, TextHelpers}
+  alias XettelkastenServer.Note
+  import XettelkastenServer.TextHelpers, only: [trim_path: 1]
 
   def start_link(_) do
     GenServer.start_link(__MODULE__, [], name: __MODULE__)
@@ -48,12 +49,50 @@ defmodule XettelkastenServer.NoteWatcher do
 
   defp delete_note(path, state) do
     Logger.info("deleting note at #{path}")
-    Map.delete(state, path)
+
+    state
+    |> Map.delete(path)
+    |> update_backlinks(path)
   end
 
   defp update_note(path, state) do
     Logger.info("updating note at #{path}")
-    Map.put(state, path, XettelkastenServer.Note.from_path(TextHelpers.trim_path(path)))
+
+    state
+    |> Map.put(path, Note.from_path(trim_path(path)))
+    |> update_backlinks(path)
+  end
+
+  defp is_delete?(events) do
+    :deleted in events or :removed in events
+  end
+
+  defp is_update?(events) do
+    :modified in events or :created in events
+  end
+
+  defp update_backlinks(state, path) do
+    linked_path = trim_path(path)
+
+    Enum.map(state, fn {path, note} ->
+      backlink_paths = Enum.map(note.backlinks, & &1.path)
+
+      case linked_path in backlink_paths do
+        true -> {path, Note.from_path(note.path)}
+        false -> {path, note}
+      end
+    end)
+    |> Enum.into(%{})
+  end
+
+  if Mix.env() in [:dev, :test] do
+    def reload! do
+      GenServer.cast(__MODULE__, :reload)
+    end
+
+    def handle_cast(:reload, _state) do
+      {:noreply, %{notes: initial_notes_load()}}
+    end
   end
 
   defp initial_notes_load do
@@ -68,13 +107,5 @@ defmodule XettelkastenServer.NoteWatcher do
       }
     end)
     |> Enum.into(%{})
-  end
-
-  defp is_delete?(events) do
-    :deleted in events or :removed in events
-  end
-
-  defp is_update?(events) do
-    :modified in events or :created in events
   end
 end
