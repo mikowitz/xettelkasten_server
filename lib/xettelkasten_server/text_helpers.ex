@@ -8,7 +8,7 @@ defmodule XettelkastenServer.TextHelpers do
   def titleize(s) do
     s
     |> String.split("/", trim: true)
-    |> Enum.map_join(" /", fn nest ->
+    |> Enum.map_join(" / ", fn nest ->
       nest
       |> String.split(" ", trim: true)
       |> Enum.map_join(" ", &String.capitalize/1)
