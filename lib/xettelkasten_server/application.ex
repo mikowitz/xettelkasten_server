@@ -6,6 +6,8 @@ defmodule XettelkastenServer.Application do
 
   @impl true
   def start(_type, _args) do
+    Application.ensure_started(:file_system)
+
     children = [
       {XettelkastenServer.NoteWatcher, []},
       {Plug.Cowboy,

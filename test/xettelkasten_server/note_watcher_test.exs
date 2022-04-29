@@ -10,6 +10,7 @@ defmodule XettelkastenServer.NoteWatcherTest do
       File.rm("test/support/notes/my_test_note.md")
       File.rm("test/support/notes/linking_note.md")
       File.rm("test/support/notes/linked_note.md")
+      File.rmdir("test/support/notes/test_nest")
     end)
   end
 
@@ -99,5 +100,17 @@ defmodule XettelkastenServer.NoteWatcherTest do
              slug: "linked_note",
              missing: false
            } in backlinks
+  end
+
+  test "doesn't crash if a new directory is created" do
+    pid = Process.whereis(XettelkastenServer.NoteWatcher)
+    fs_pid = Process.whereis(XettelkastenServer.NoteWatcher.Watcher)
+    path = Path.join(XettelkastenServer.notes_directory(), "test_nest")
+    File.mkdir!(path)
+
+    :timer.sleep(@delay)
+
+    assert Process.alive?(fs_pid)
+    assert Process.alive?(pid)
   end
 end
