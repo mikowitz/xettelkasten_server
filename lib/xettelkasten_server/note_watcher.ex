@@ -17,11 +17,18 @@ defmodule XettelkastenServer.NoteWatcher do
   end
 
   def init(_) do
-    fs_args = [dirs: [XettelkastenServer.notes_directory()], name: @watcher_name]
-    {:ok, _} = FileSystem.start_link(fs_args)
-    FileSystem.subscribe(@watcher_name)
+    opts = [dirs: [XettelkastenServer.notes_directory()], name: @watcher_name]
 
-    {:ok, %{notes: initial_notes_load()}}
+    case FileSystem.start_link(opts) do
+      {:ok, _} ->
+        FileSystem.subscribe(@watcher_name)
+
+        {:ok, %{notes: initial_notes_load()}}
+
+      error ->
+        Logger.warn("Could not start the file system monitor")
+        error
+    end
   end
 
   def notes do
@@ -33,34 +40,39 @@ defmodule XettelkastenServer.NoteWatcher do
   end
 
   def handle_info({:file_event, _watcher_pid, {path, events}}, %{notes: notes} = state) do
-    new_notes =
-      cond do
-        is_delete?(events) -> delete_note(path, notes)
-        is_update?(events) -> update_note(path, notes)
-        true -> notes
+    notes =
+      case Path.extname(path) == ".md" do
+        true ->
+          handle_markdown_file_event(path, events, notes)
+          |> update_backlinks(path)
+
+        false ->
+          notes
       end
 
-    {:noreply, %{state | notes: new_notes}}
+    {:noreply, %{state | notes: notes}}
   end
 
   def handle_info({:file_event, _watcher_pid, :stop}, state) do
     {:noreply, state}
   end
 
-  defp delete_note(path, state) do
-    Logger.info("deleting note at #{path}")
-
-    state
-    |> Map.delete(path)
-    |> update_backlinks(path)
+  defp handle_markdown_file_event(path, events, notes) do
+    cond do
+      is_delete?(events) -> delete_note(path, notes)
+      is_update?(events) -> update_note(path, notes)
+      true -> notes
+    end
   end
 
-  defp update_note(path, state) do
-    Logger.info("updating note at #{path}")
+  defp delete_note(path, notes) do
+    Logger.info("deleting note at #{path}")
+    Map.delete(notes, path)
+  end
 
-    state
-    |> Map.put(path, Note.from_path(trim_path(path)))
-    |> update_backlinks(path)
+  defp update_note(path, notes) do
+    Logger.info("updating note at #{path}")
+    Map.put(notes, path, Note.from_path(trim_path(path)))
   end
 
   defp is_delete?(events) do
