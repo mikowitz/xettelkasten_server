@@ -18,6 +18,8 @@ defmodule XettelkastenServer.NoteFileReader do
 
   defp split_yaml_and_markdown(file) do
     case String.split(file, "---\n", trim: true, parts: 2) do
+      [] ->
+        {@empty_yaml, ""}
       [markdown] ->
         {@empty_yaml, markdown}
 
