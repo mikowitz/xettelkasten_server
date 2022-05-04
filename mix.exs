@@ -28,6 +28,7 @@ defmodule XettelkastenServer.MixProject do
       {:floki, "~> 0.32.0", only: [:dev, :test]},
       {:plug_cowboy, "~> 2.0"},
       {:mix_test_watch, "~> 1.0", only: [:dev, :test], runtime: false},
+      {:mox, "~> 1.0", onoly: :test},
       {:yaml_elixir, "~> 2.8"}
     ]
   end

@@ -14,6 +14,11 @@ defmodule XettelkastenServer.Application do
        scheme: :http, plug: XettelkastenServer.Router, options: [port: cowboy_port()]}
     ]
 
+    children = case Application.get_env(:xettelkasten_server, :auto_commit, false) do
+      true -> [{XettelkastenServer.GitWatcher, []} | children]
+      false -> children
+    end
+
     Logger.info("Starting Xettelkasten server on port #{cowboy_port()}")
 
     opts = [strategy: :one_for_one, name: XettelkastenServer.Supervisor]

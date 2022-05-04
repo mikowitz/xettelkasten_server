@@ -68,5 +68,5 @@ jobs:
         if: steps.mix-cache.outputs.cache-hit != 'true'
 
       - name: mix test
-        run: FILE_WATCHER_DELAY_MS=1000 mix test
+        run: FILE_WATCHER_DELAY_MS=1000 mix test --include delayed:true
 
