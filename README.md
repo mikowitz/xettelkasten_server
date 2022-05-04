@@ -35,6 +35,17 @@ config :xettelkasten_server, cowboy_port: 8080
 config :xettelkasten_server, notes_directory: "notes"
 ```
 
+An optional configuration variable, `:auto_commit` is available as well. If set to `true` this will spin up a GenServer whose
+role is to watch your set `notes_directory` and commit any changes every 10 minutes. This allows you to focus on writing your notes,
+letting the server handle keeping your notes up to date in version control.
+
+This feature is strongly opinionated: it expects the command `git push origin HEAD`
+to succeed under your local git configuration. Therefore it is turned off by default.
+
+```elixir
+config :xettelkasten_server, auto_commit: true
+```
+
 Once these variables have been set, you can start your server by running
 
 `> mix run --no-halt`

@@ -14,6 +14,7 @@ defmodule XettelkastenServer.NoteWatcherTest do
     end)
   end
 
+  @tag :delayed
   test "updates the state" do
     base_path =
       Path.join(
@@ -59,6 +60,7 @@ defmodule XettelkastenServer.NoteWatcherTest do
     refute Notes.get("my_test_note")
   end
 
+  @tag :delayed
   test "updates backlinks to a note when the note changes" do
     base_path =
       Path.join(
@@ -102,6 +104,7 @@ defmodule XettelkastenServer.NoteWatcherTest do
            } in backlinks
   end
 
+  @tag :delayed
   test "doesn't crash if a new directory is created" do
     pid = Process.whereis(XettelkastenServer.NoteWatcher)
     fs_pid = Process.whereis(XettelkastenServer.NoteWatcher.Watcher)
